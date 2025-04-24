@@ -11,14 +11,15 @@ function set_default_editor {
 
     notify "INFO" "Configuring neovim as default editor . . ."
     sudo ln -s /usr/local/bin/nvim /usr/bin/nvim
+    sudo ln -s $HOME/bin/nvim /usr/local/bin/nvim
     sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
-    sudo update-alternatives --config editor
+    #sudo update-alternatives --config editor
 
     sudo update-alternatives --install /usr/bin/vi vi "$(command -v nvim)" 60
-    sudo update-alternatives --config vi
+    #sudo update-alternatives --config vi
 
     sudo update-alternatives --install /usr/bin/vim vim "$(command -v nvim)" 60
-    sudo update-alternatives --config vim
+    #sudo update-alternatives --config vim
 }
 
 function set_personal_config {
@@ -73,3 +74,5 @@ cd $RETURN || exit 1
 # Install other dependencies
 install_runtime_dependencies
 notify "INFO" "SUCCESS"
+
+set_default_editor
