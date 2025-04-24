@@ -1,0 +1,116 @@
+#!/bin/bash
+
+function notify {
+    RED='\033[0;31m[ERROR] '
+    YELLOW='\033[1;33m[WARNING] '
+    GREEN='\e[1;32m[INFO] '
+    BLUE='\e[1;34m[TASK] '
+    MAGENTA='\e[95m[DEBUG] '
+    NC='\033[0m' # No Color
+
+    local message="${*:2}"
+
+    if [ $1 = "TASK" ]; then
+        printf "${BLUE}${message}\n${NC}"
+    fi
+    if [ $1 = "INFO" ]; then
+        printf "${GREEN}${message}\n${NC}"
+    fi
+    if [ $1 = "WARNING" ]; then
+        printf "${YELLOW}${message}\n${NC}"
+    fi
+    if [ $1 = "ERROR" ]; then
+        printf "${RED}${message}\n${NC}"
+    fi
+    if [ $1 = "DEBUG" ]; then
+        printf "${MAGENTA}${message}\n${NC}"
+    fi
+}
+
+function install_dependency {
+    local dependencies=("$@")
+    local ret=0
+    local temp_log_file
+    temp_log_file=$(mktemp)
+
+    sudo apt-get update -y &> /dev/null;
+
+    notify "INFO" "Installing:" "${dependencies[@]}"
+    sudo apt-get -y install "${dependencies[@]}" 2> "$temp_log_file" > /dev/null;
+    status=$?
+
+    if [ $status -ne 0 ]; then
+      notify "ERROR" "Failed to install:" "${dependencies[@]}"
+      debug_log=$(cat "$temp_log_file")
+      notify "DEBUG" "$debug_log"
+      ret=1
+    fi
+    rm -rf "$temp_log_file"
+
+    return $ret
+}
+
+function install_npm_dependency {
+    local dependencies=("$@")
+    local ret=0
+    local temp_log_file
+    temp_log_file=$(mktemp)
+
+    notify "INFO" "installing npm package(s):" "${dependencies[@]}"
+    sudo npm i -g  "${dependencies[@]}" 2> "$temp_log_file" > /dev/null;
+    status=$?
+
+    if [ $status -ne 0 ]; then
+      notify "ERROR" "Failed to install %s" "${dependencies[@]}";
+      debug_log=$(cat "$temp_log_file")
+      notify "DEBUG" "$debug_log"
+      ret=1
+    fi
+    rm -rf "$temp_log_file"
+
+    return $ret
+}
+
+function install_pip_dependency {
+    local dependencies=("$@")
+    local ret=0
+    local temp_log_file
+    temp_log_file=$(mktemp)
+
+    notify "INFO" "installing python package(s):" "${dependencies[@]}"
+    pip3 install "${dependencies[@]}" 2> "$temp_log_file" > /dev/null;
+    status=$?
+
+    if [ $status -ne 0 ]; then
+      notify "ERROR" "Failed to install %s" "${dependencies[@]}"
+      debug_log=$(cat "$temp_log_file")
+      notify "DEBUG" "$debug_log"
+      ret=1
+    fi
+    rm -rf "$temp_log_file"
+
+    return $ret
+}
+
+function install_core {
+    notify "INFO" "Installing Core Tools for USER " "$USER"
+
+    # Things to install after installing new OS:
+    sudo apt update &> /dev/null
+
+    # GIT PIP3 CMAKE CPPMAN CURL
+    install_dependency git python3-pip cmake curl wget
+    install_npm_dependency yarn
+
+    # echo "Changing swappiness from standard 60 to 10"
+    # echo "vm.swappiness=10" >> /etc/sysctl.conf
+
+    notify "INFO" "Copying config files to home directory"
+    notify "INFO" "Moving .gitignore to home"
+    notify "INFO" "Moving .gitconfig to home"
+    notify "INFO" "Moving .inpurc to home"
+    notify "INFO" "Moving .bash_aliases to home"
+    notify "INFO" "Moving .bashrc to home"
+    cp ./.gitignore ./.gitconfig ./.inputrc ./.bash_aliases ./.bashrc "$HOME/"
+}
+

@@ -1,0 +1,11 @@
+# tags for vim
+*tags*
+.nvimrc
+.nvimlog
+
+# tags for KDE
+.directory
+
+# Lint files
+.ccls-cache/
+.clangd/

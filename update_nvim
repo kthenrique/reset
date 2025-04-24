@@ -1,0 +1,75 @@
+#!/bin/bash
+
+. ./functions
+
+NVIM_REPO="https://github.com/neovim/neovim"
+NVIM_CONFIG_URL="https://github.com/kthenrique/nvim.git"
+
+function set_default_editor {
+    notify "WARNING" "Removing vi* & nano"
+    sudo apt purge nano vim* vi &> /dev/null
+
+    notify "INFO" "Configuring neovim as default editor . . ."
+    sudo ln -s /usr/local/bin/nvim /usr/bin/nvim
+    sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
+    sudo update-alternatives --config editor
+
+    sudo update-alternatives --install /usr/bin/vi vi "$(command -v nvim)" 60
+    sudo update-alternatives --config vi
+
+    sudo update-alternatives --install /usr/bin/vim vim "$(command -v nvim)" 60
+    sudo update-alternatives --config vim
+}
+
+function set_personal_config {
+    notify "INFO" "Installing neovim init configs . . ."
+    (cd /home/$USER/.config/ && \
+    git clone "$NVIM_CONFIG_URL" && \
+    cd nvim && git checkout lua && \
+    nvim --cmd :PackerSync --cmd :qa && \
+    nvim --cmd :MasonInstallRequired --cmd :qa || return 1)
+}
+
+function install_build_dependencies {
+    notify "INFO" "Installing build dependencies . . ."
+    (install_dependency pkg-config automake libtool libtool-bin gettext global) || \
+    (notify "ERROR" "Failed to install build dependencies for neovim" && return 1)
+}
+
+function install_runtime_dependencies {
+    notify "INFO" "Installing runtime dependencies . . ."
+    (install_dependency luarocks ripgrep fonts-powerline npm python3-pip xsel && \
+    install_npm_dependency neovim && install_pip_dependency pynvim) || \
+    (notify "ERROR" "Failed to install runtime dependencies for neovim" && return 1)
+    return $?
+}
+
+function build_neovim {
+    install_build_dependencies || return 1
+    notify "INFO" "Cloning neovim stable . . ."
+    ( (git clone -q --depth 1 --branch stable "$NVIM_REPO" &>/dev/null) || \
+        (notify "ERROR" "Failed to clone neovim" && return 1) ) && \
+
+    ( (notify "INFO" "Building neovim from sources. . .") && \
+    (cd neovim && make -j 12 CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=$PWD/build/install install) &> /dev/null || \
+    (notify "ERROR" "Failed to build neovim" && (rm -rf ./neovim || exit 0) && return 1) )
+
+}
+
+# CD into the folder to hold the sources
+rm -rf $HOME/bin/neovim $HOME/bin/nvim
+RETURN=$PWD
+mkdir -p $HOME/bin
+cd $HOME/bin || exit 1
+
+# Build neovim from sources
+build_neovim || exit 1
+
+# Link it to PATH and cd-return
+notify "INFO" "Linking nvim in $HOME/bin . . ."
+ln -s $HOME/bin/neovim/build/bin/nvim
+cd $RETURN || exit 1
+
+# Install other dependencies
+install_runtime_dependencies
+notify "INFO" "SUCCESS"
