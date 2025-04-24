@@ -1,0 +1,32 @@
+[user]
+    email = kthenrique@pm.me
+    name = Kelve T. Henrique
+[core]
+    editor = nvim
+    excludesfile = $HOME/.gitignore
+    fileMode = false
+    whitespace = trailing-space
+	autocrlf = input
+[color]
+    ui = auto
+[push]
+    default = matching
+[alias]
+	lg  = log --graph --decorate --pretty=format:'%C(magenta)%h%C(reset) -%C(yellow)%d%Creset %<(50) %C(red bold)%s %Cgreen(%cr) %C(cyan)<%an>%Creset %<(3)'
+	lg-all  = log --graph --decorate --pretty=format:'%C(magenta)%h%C(reset) -%C(yellow)%d%Creset %<(50) %C(red bold)%s %Cgreen(%cr) %C(cyan)<%an>%Creset %<(3)' --all
+    lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+[merge]
+    tool = vimdiff
+[mergetool]
+    prompt = true
+[mergetool "vimdiff"]
+    cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+[status]
+    submodulesummary = true
+[difftool]
+    prompt = false
+[diff]
+    tool = nvimdiff
+    #submodule = log
+[difftool "nvimdiff"]
+    cmd = "nvim -c 'DiffviewOpen -uno '"

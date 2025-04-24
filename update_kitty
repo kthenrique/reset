@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+. ./functions
+
+notify "INFO" "Installing Kitty at $HOME/bin . . ."
+rm -rf $HOME/bin/kitty.app
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin  dest=$HOME/bin/ launch=n
+
+notify "INFO" "Linking kitty in $HOME/bin . . ."
+rm -rf $HOME/bin/kitty
+rm -rf $HOME/bin/kitten
+ln -sf $HOME/bin/kitty.app/bin/kitty $HOME/bin/kitty.app/bin/kitten $HOME/bin/
+
+notify "INFO" "Arranging desktop files for discoverability . . ."
+mkdir -p $HOME/.local/share/applications
+cp $HOME/bin/kitty.app/share/applications/kitty.desktop $HOME/.local/share/applications/
+# If you want to open text files and images in kitty via your file manager also add the kitty-open.desktop file
+cp $HOME/bin/kitty.app/share/applications/kitty-open.desktop $HOME/.local/share/applications/
+#Update the paths to the kitty and its icon in the kitty desktop file(s)
+sed -i "s|Icon=kitty|Icon=$HOME/bin/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" $HOME/.local/share/applications/kitty.desktop
+sed -i "s|Exec=kitty|Exec=$HOME/bin/kitty.app/bin/kitty|g" $HOME/.local/share/applications/kitty*.desktop
+
+notify "INFO" "Downlowding gruvbox_dark theme . . ."
+THEME=https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/gruvbox_dark.conf
+wget "$THEME" -P ~/.config/kitty/kitty-themes/themes
+
+notify "INFO" "Setting theme . . ."
+rm -rf $HOME/.config/kitty/theme.conf
+ln -s ~/.config/kitty/kitty-themes/themes/gruvbox_dark.conf ~/.config/kitty/theme.conf
+
+notify "INFO" "Configuring terminal . . ."
+rm -rf $HOME/.config/kitty/kitty.conf
+echo "include ./theme.conf" >> $HOME/.config/kitty/kitty.conf
+echo "tab_bar_style powerline" >> $HOME/.config/kitty/kitty.conf
+echo "tab_title_template \"{index}: {'/'.join(title.split('/')[-2:])}\"" >> $HOME/.config/kitty/kitty.conf
+echo "notify_on_cmd_finish invisible 10.0 notify" >> $HOME/.config/kitty/kitty.conf
