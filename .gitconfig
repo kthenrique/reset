@@ -6,7 +6,7 @@
     excludesfile = $HOME/.gitignore
     fileMode = false
     whitespace = trailing-space
-	autocrlf = input
+    autocrlf = input
 [color]
     ui = auto
 [push]
