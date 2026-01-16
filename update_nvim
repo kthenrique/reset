@@ -11,7 +11,7 @@ function set_default_editor {
 
     notify "INFO" "Configuring neovim as default editor . . ."
     sudo ln -s /usr/local/bin/nvim /usr/bin/nvim
-    sudo ln -s $HOME/bin/nvim /usr/local/bin/nvim
+    sudo ln -s $HOME/.local/bin/nvim /usr/local/bin/nvim
     sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
     #sudo update-alternatives --config editor
 
@@ -58,17 +58,16 @@ function build_neovim {
 }
 
 # CD into the folder to hold the sources
-rm -rf $HOME/bin/neovim $HOME/bin/nvim
 RETURN=$PWD
-mkdir -p $HOME/bin
-cd $HOME/bin || exit 1
+mkdir -p $HOME/.local/bin
+cd $HOME/.local/bin || exit 1
 
 # Build neovim from sources
 build_neovim || exit 1
 
 # Link it to PATH and cd-return
-notify "INFO" "Linking nvim in $HOME/bin . . ."
-ln -s $HOME/bin/neovim/build/bin/nvim
+notify "INFO" "Linking nvim in $HOME/.local/bin . . ."
+ln -s $HOME/.local/bin/neovim/build/bin/nvim
 cd $RETURN || exit 1
 
 # Install other dependencies
