@@ -8,6 +8,8 @@ NVIM_CONFIG_URL="https://github.com/kthenrique/nvim.git"
 function set_default_editor {
     notify "WARNING" "Removing vi* & nano"
     sudo apt purge nano vim* vi &> /dev/null
+    sudo rm -rf /usr/local/bin/nvim /usr/local/bin/vim /usr/local/bin/vi
+    sudo rm -rf /usr/bin/nvim /usr/bin/vim /usr/bin/vi
 
     notify "INFO" "Configuring neovim as default editor . . ."
     sudo ln -s /usr/local/bin/nvim /usr/bin/nvim
