@@ -39,8 +39,8 @@ function install_build_dependencies {
 
 function install_runtime_dependencies {
     notify "INFO" "Installing runtime dependencies . . ."
-    (install_dependency luarocks ripgrep fonts-powerline npm python3-pip xsel && \
-    install_npm_dependency neovim && install_pip_dependency pynvim) || \
+    (install_dependency luarocks ripgrep fonts-powerline npm python3-pip xsel python3-pynvim && \
+    install_npm_dependency neovim) || \
     (notify "ERROR" "Failed to install runtime dependencies for neovim" && return 1)
     return $?
 }
