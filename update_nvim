@@ -33,7 +33,7 @@ function set_personal_config {
 
 function install_build_dependencies {
     notify "INFO" "Installing build dependencies . . ."
-    (install_dependency pkg-config automake libtool libtool-bin gettext global) || \
+    (install_dependency pkg-config automake libtool libtool-bin gettext global cmake) || \
     (notify "ERROR" "Failed to install build dependencies for neovim" && return 1)
 }
 
