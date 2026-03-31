@@ -11,30 +11,27 @@ esac
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
-
-shopt -s cmdhist
 # append to the history file, don't overwrite it
-shopt -s histappend histverify
+shopt -s cmdhist histappend histverify
+
 PROMPT_COMMAND="history -a"
 
 #export HISTIGNORE="&:bg:fg:ll:h"
-export HISTTIMEFORMAT="$(echo -e ${BCyan})[%d/%m %H:%M:%S]$(echo -e ${NC}) "
+HISTTIMEFORMAT="${BCyan}[%d/%m/%y %H:%M:%S]${NC} "
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-export HISTCONTROL=ignoreboth:erasedups
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTCONTROL=ignoreboth:erasedups
 # Keep history and organize by month
-# Point default history file to the current month history
-export HISTSIZE=-1
-export HISTFILESIZE=-1
+HISTSIZE=-1
+HISTFILESIZE=-1
 
+# Point default history file to the current month history
 mkdir -p ~/.admin/bash_history/
 #export HISTFILE=~/.admin/bash_history/$(date +%Y-%m)
 
 if [ ! -f ~/.admin/bash_history/"$(date +%Y-%m)" ]; then
-    cp ~/.bash_history ~/.admin/bash_history/"$(date +%Y-$(printf "%02d" $(expr $(date +%m) - 1)))"
-    rm ~/.bash_history
+    prev_month=$(date -d "$(date +%Y-%m-15) -1 month" +%Y-%m)
+    mv ~/.bash_history ~/.admin/bash_history/"$prev_month"
     touch ~/.bash_history
     touch ~/.admin/bash_history/"$(date +%Y-%m)"
 fi
@@ -88,38 +85,16 @@ xterm*|rxvt*)
     ;;
 esac
 
-# enable color support of ls and also add handy aliases
+# enable color support
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
 fi
 
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases
-alias ll='ls -tcahlF --group-directories-first'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
 # Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+[ -f ~/.bash_aliases ] &&  source ~/.bash_aliases
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -131,8 +106,12 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+[ -f ~/.bash_completion ] && source ~/.bash_completion
 
-source ~/.bash_completion
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
 # Install latest starship with:
 #curl -sS https://starship.rs/install.sh | sh
-eval "$(starship init bash)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
