@@ -1,12 +1,12 @@
-[user]
-    email = kthenrique@pm.me
-    name = Kelve T. Henrique
 [core]
     editor = nvim
     excludesfile = $HOME/.gitignore
     fileMode = false
     whitespace = trailing-space
     autocrlf = input
+[user]
+    email = kthenrique@pm.me
+    name = Kelve T. Henrique
 [color]
     ui = auto
 [push]
@@ -30,3 +30,5 @@
     #submodule = log
 [difftool "nvimdiff"]
     cmd = "nvim -c 'DiffviewOpen -uno '"
+[includeIf "gitdir:~/workspace/co/"]
+    path = ~/workspace/co/.gitconfig
