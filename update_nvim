@@ -13,7 +13,7 @@ function set_default_editor {
 
     notify "INFO" "Configuring neovim as default editor . . ."
     sudo ln -s /usr/local/bin/nvim /usr/bin/nvim
-    sudo ln -s $HOME/.local/bin/nvim /usr/local/bin/nvim
+    sudo ln -s ${HOME}/.local/bin/nvim /usr/local/bin/nvim
     sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
     #sudo update-alternatives --config editor
 
@@ -25,12 +25,13 @@ function set_default_editor {
 }
 
 function set_personal_config {
-    notify "INFO" "Installing neovim init configs . . ."
-    (cd /home/$USER/.config/ && \
-    git clone "$NVIM_CONFIG_URL" && \
-    cd nvim && git checkout lua && \
-    nvim --cmd :PackerSync --cmd :qa && \
-    nvim --cmd :MasonInstallRequired --cmd :qa || return 1)
+    if [ -d ${HOME}/.config/nvim ]; then
+        notify "INFO" "Neovim config already exists, skipping . . ."
+    else
+        notify "INFO" "Installing neovim init configs . . ."
+        (mkdir -p ${HOME}/.config && cd ${HOME}/.config/ && \
+        git clone "$NVIM_CONFIG_URL" || return 1)
+    fi
 }
 
 function install_build_dependencies {
@@ -72,8 +73,11 @@ notify "INFO" "Linking nvim in $HOME/.local/bin . . ."
 ln -s $HOME/.local/bin/neovim/build/bin/nvim
 cd $RETURN || exit 1
 
+notify "INFO" "Neovim installed successfully"
+
+set_personal_config
+
 # Install other dependencies
 install_runtime_dependencies
-notify "INFO" "SUCCESS"
 
 set_default_editor
