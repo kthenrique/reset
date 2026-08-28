@@ -21,3 +21,4 @@ alias la='ls -A'
 alias l='ls -CF'
 
 alias open="xdg-open"
+alias less='NVIM_APPNAME=nvim-pager nvim -R'
